@@ -1,0 +1,8 @@
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.csproj.AssemblyReference.cache
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\rpswa.dswa.cache.json
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.GeneratedMSBuildEditorConfig.editorconfig
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.AssemblyInfoInputs.cache
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.AssemblyInfo.cs
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.csproj.CoreCompileInputs.cache
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.MvcApplicationPartsAssemblyInfo.cs
+D:\Sridhar\POC\TaskManagement.Api\obj\Debug\net10.0\TaskManagement.Api.MvcApplicationPartsAssemblyInfo.cache
