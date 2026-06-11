@@ -3,25 +3,28 @@
 import { useEffect, useState } from "react";
 import { api } from "@/services/api";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
+  const router = useRouter();
+  const clearToken = useAuthStore((s) => s.clearToken);
+  
   const [tasks, setTasks] = useState<any[]>([]);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [status, setStatus] = useState("Pending");
   const [priority, setPriority] = useState("Medium");
   const [dueDate, setDueDate] = useState("");
-
-  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
-
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(5);
-
+  const [pageSize] = useState(6);
   const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const totalPages = Math.ceil(totalCount / pageSize);
 
@@ -32,6 +35,7 @@ export default function Dashboard() {
     setStatus("Pending");
     setPriority("Medium");
     setDueDate("");
+    setFormError("");
   };
 
   const fetchTasks = async () => {
@@ -39,74 +43,75 @@ export default function Dashboard() {
       const res = await api.get(
         `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}`
       );
-
       const responseData = res.data.data || res.data;
-
-      setTasks(responseData.items);
-      setTotalCount(responseData.totalCount);
+      setTasks(responseData.items || []);
+      setTotalCount(responseData.totalCount || 0);
     } catch (error) {
       console.error(error);
-      alert("Failed to fetch tasks");
     }
   };
 
   const createTask = async () => {
-    try {
-      const payload: any = {
-        title,
-        description,
-        status,
-        priority,
-      };
+    setFormError("");
+    
+    if (!title.trim()) {
+      setFormError("Task title is required");
+      return;
+    }
 
+    setLoading(true);
+    try {
+      const payload: any = { title, description, status, priority };
       if (dueDate) payload.dueDate = dueDate;
 
       await api.post("/tasks", payload);
-
+      setSuccessMessage("Task created successfully!");
       resetForm();
+      setTimeout(() => setSuccessMessage(""), 3000);
       await fetchTasks();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to create task");
+    } catch (error: any) {
+      setFormError(error.response?.data?.message || "Failed to create task");
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateTask = async () => {
     if (editingTaskId === null) return;
+    setFormError("");
 
+    if (!title.trim()) {
+      setFormError("Task title is required");
+      return;
+    }
+
+    setLoading(true);
     try {
-      const payload: any = {
-        title,
-        description,
-        status,
-        priority,
-      };
-
+      const payload: any = { title, description, status, priority };
       if (dueDate) payload.dueDate = dueDate;
 
       await api.patch(`/tasks/${editingTaskId}`, payload);
-
+      setSuccessMessage("Task updated successfully!");
       resetForm();
+      setTimeout(() => setSuccessMessage(""), 3000);
       await fetchTasks();
-    } catch (error) {
-      console.error(error);
-      alert("Failed to update task");
+    } catch (error: any) {
+      setFormError(error.response?.data?.message || "Failed to update task");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const deleteTask = async (id: number) => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete this task?"
-    );
-
-    if (!confirmed) return;
+  const deleteTask = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this task?")) return;
 
     try {
       await api.delete(`/tasks/${id}`);
+      setSuccessMessage("Task deleted successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
       await fetchTasks();
     } catch (error) {
       console.error(error);
-      alert("Failed to delete task");
     }
   };
 
@@ -117,183 +122,300 @@ export default function Dashboard() {
     setStatus(task.status);
     setPriority(task.priority);
     setDueDate(task.dueDate?.split("T")[0] || "");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const handleLogout = () => {
+    clearToken();
+    router.push("/login");
   };
 
   useEffect(() => {
     fetchTasks();
   }, [page, search, filterStatus]);
 
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "High":
+        return "bg-red-100 text-red-700 border-red-200";
+      case "Medium":
+        return "bg-amber-100 text-amber-700 border-amber-200";
+      case "Low":
+        return "bg-green-100 text-green-700 border-green-200";
+      default:
+        return "bg-slate-100 text-slate-700 border-slate-200";
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "Completed":
+        return "bg-emerald-100 text-emerald-700 border-emerald-200";
+      case "InProgress":
+        return "bg-blue-100 text-blue-700 border-blue-200";
+      case "Pending":
+        return "bg-slate-100 text-slate-700 border-slate-200";
+      default:
+        return "bg-slate-100 text-slate-700 border-slate-200";
+    }
+  };
+
   return (
     <ProtectedRoute>
-      <div className="p-6 max-w-4xl mx-auto">
-        {/* Create/Edit Task */}
-        <div className="border p-4 rounded mb-6">
-          <h2 className="text-xl font-semibold mb-4">
-            {editingTaskId ? "Edit Task" : "Create Task"}
-          </h2>
-
-          <input
-            className="border p-2 w-full mb-2"
-            placeholder="Title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-
-          <textarea
-            className="border p-2 w-full mb-2"
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-          />
-
-          <select
-            className="border p-2 w-full mb-2"
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-          >
-            <option value="Pending">Pending</option>
-            <option value="InProgress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-
-          <select
-            className="border p-2 w-full mb-2"
-            value={priority}
-            onChange={(e) => setPriority(e.target.value)}
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-
-          <input
-            type="date"
-            className="border p-2 w-full mb-4"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-
-          <button
-            onClick={editingTaskId ? updateTask : createTask}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            {editingTaskId ? "Update Task" : "Create Task"}
-          </button>
-
-          {editingTaskId && (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {/* Header */}
+        <header className="border-b border-slate-200 bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900">Task Dashboard</h1>
+              <p className="text-sm text-slate-500 mt-1">Manage your tasks efficiently</p>
+            </div>
             <button
-              onClick={resetForm}
-              className="ml-2 bg-gray-500 text-white px-4 py-2 rounded"
+              onClick={handleLogout}
+              className="px-4 py-2 rounded-xl text-slate-700 border border-slate-300 hover:bg-slate-50 transition font-medium text-sm"
             >
-              Cancel
+              Logout
             </button>
-          )}
-        </div>
+          </div>
+        </header>
 
-        {/* Search & Filter */}
-        <div className="border p-4 rounded mb-6">
-          <h2 className="text-xl font-semibold mb-4">
-            Search & Filter
-          </h2>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          {/* Create/Edit Task Section */}
+          <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
+            <h2 className="text-2xl font-bold text-slate-900 mb-6">
+              {editingTaskId ? "Edit Task" : "Create New Task"}
+            </h2>
 
-          <input
-            className="border p-2 w-full mb-2"
-            placeholder="Search tasks..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setPage(1);
-            }}
-          />
-
-          <select
-            className="border p-2 w-full mb-2"
-            value={filterStatus}
-            onChange={(e) => {
-              setFilterStatus(e.target.value);
-              setPage(1);
-            }}
-          >
-            <option value="">All Statuses</option>
-            <option value="Pending">Pending</option>
-            <option value="InProgress">In Progress</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
-
-        {/* Task List */}
-        <h1 className="text-2xl font-bold mb-4">
-          My Tasks
-        </h1>
-
-        {tasks.length === 0 ? (
-          <p>No tasks found.</p>
-        ) : (
-          tasks.map((task) => (
-            <div
-              key={task.id}
-              className="border p-4 rounded mb-3"
-            >
-              <h2 className="text-lg font-semibold">
-                {task.title}
-              </h2>
-
-              <p className="text-gray-600">
-                {task.description}
-              </p>
-
-              <p>Status: {task.status}</p>
-              <p>Priority: {task.priority}</p>
-
-              {task.dueDate && (
-                <p>
-                  Due Date:{" "}
-                  {new Date(task.dueDate).toLocaleDateString()}
-                </p>
+            <div className="space-y-4">
+              {formError && (
+                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                  {formError}
+                </div>
               )}
 
-              <div className="mt-3">
+              {successMessage && (
+                <div className="rounded-xl bg-green-50 border border-green-200 p-3 text-sm text-green-700">
+                  {successMessage}
+                </div>
+              )}
+
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Task Title *</span>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  placeholder="Enter task title"
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Description</span>
+                <textarea
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+                  placeholder="Enter task description"
+                  rows={3}
+                />
+              </label>
+
+              <div className="grid grid-cols-2 gap-4">
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">Status</span>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="InProgress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </label>
+
+                <label className="block">
+                  <span className="text-sm font-medium text-slate-700">Priority</span>
+                  <select
+                    value={priority}
+                    onChange={(e) => setPriority(e.target.value)}
+                    className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  >
+                    <option value="Low">Low</option>
+                    <option value="Medium">Medium</option>
+                    <option value="High">High</option>
+                  </select>
+                </label>
+              </div>
+
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Due Date</span>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
+
+              <div className="flex gap-3 pt-4">
                 <button
-                  onClick={() => editTask(task)}
-                  className="bg-yellow-500 text-white px-3 py-1 rounded mr-2"
+                  onClick={editingTaskId ? updateTask : createTask}
+                  disabled={loading}
+                  className="flex-1 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-700 disabled:opacity-50"
                 >
-                  Edit
+                  {loading ? (editingTaskId ? "Updating..." : "Creating...") : (editingTaskId ? "Update Task" : "Create Task")}
                 </button>
 
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                >
-                  Delete
-                </button>
+                {editingTaskId && (
+                  <button
+                    onClick={resetForm}
+                    className="rounded-2xl border border-slate-300 px-6 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                )}
               </div>
             </div>
-          ))
-        )}
+          </div>
 
-        {/* Pagination */}
-        <div className="flex items-center gap-4 mt-6">
-          <button
-            onClick={() =>
-              setPage((p) => Math.max(1, p - 1))
-            }
-            disabled={page === 1}
-            className="bg-gray-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            Prev
-          </button>
+          {/* Search & Filter Section */}
+          <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">Search & Filter</h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Search Tasks</span>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  placeholder="Search by title..."
+                />
+              </label>
 
-          <span>
-            Page {page} of {totalPages || 1}
-          </span>
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Filter by Status</span>
+                <select
+                  value={filterStatus}
+                  onChange={(e) => {
+                    setFilterStatus(e.target.value);
+                    setPage(1);
+                  }}
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="Pending">Pending</option>
+                  <option value="InProgress">In Progress</option>
+                  <option value="Completed">Completed</option>
+                </select>
+              </label>
+            </div>
+          </div>
 
-          <button
-            onClick={() => setPage((p) => p + 1)}
-            disabled={page >= totalPages}
-            className="bg-blue-500 text-white px-4 py-2 rounded disabled:opacity-50"
-          >
-            Next
-          </button>
+          {/* Tasks Section */}
+          <div className="mb-8">
+            <h3 className="text-2xl font-bold text-slate-900 mb-6">
+              My Tasks {tasks.length > 0 && <span className="text-slate-500 font-normal">({totalCount})</span>}
+            </h3>
+
+            {tasks.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-12 text-center">
+                <svg className="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                <p className="text-slate-500 text-lg">No tasks found. Create one to get started!</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {tasks.map((task) => (
+                  <div key={task.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-start justify-between mb-3">
+                        <h4 className="text-lg font-semibold text-slate-900 flex-1">{task.title}</h4>
+                      </div>
+
+                      {task.description && (
+                        <p className="text-slate-600 text-sm mb-4 line-clamp-2">{task.description}</p>
+                      )}
+
+                      <div className="flex gap-2 mb-4 flex-wrap">
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(task.status)}`}>
+                          {task.status}
+                        </span>
+                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(task.priority)}`}>
+                          {task.priority}
+                        </span>
+                      </div>
+
+                      {task.dueDate && (
+                        <p className="text-xs text-slate-500 mb-4">
+                          📅 Due: {new Date(task.dueDate).toLocaleDateString()}
+                        </p>
+                      )}
+
+                      <div className="flex gap-2 pt-4 border-t border-slate-200">
+                        <button
+                          onClick={() => editTask(task)}
+                          className="flex-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 text-sm font-medium transition"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => deleteTask(task.id)}
+                          className="flex-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 text-sm font-medium transition"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3 mt-8">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+              >
+                ← Previous
+              </button>
+
+              <div className="flex items-center gap-2">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p)}
+                    className={`rounded-lg w-10 h-10 text-sm font-medium transition ${
+                      page === p
+                        ? "bg-indigo-600 text-white"
+                        : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+
+              <button
+                onClick={() => setPage((p) => p + 1)}
+                disabled={page >= totalPages}
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </ProtectedRoute>

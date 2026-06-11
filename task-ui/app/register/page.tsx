@@ -10,8 +10,23 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleRegister = async () => {
+    setError("");
+    
+    if (!name || !email || !password) {
+      setError("All fields are required");
+      return;
+    }
+
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoading(true);
     try {
       await api.post("/auth/register", {
         name,
@@ -19,51 +34,93 @@ export default function RegisterPage() {
         password,
       });
 
-      alert("Registration successful");
+      setError("");
+      alert("Registration successful! Redirecting to login...");
       router.push("/login");
-    } catch (err) {
-      console.error(err);
-      alert("Registration failed");
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || err.message || "Registration failed. Please try again.";
+      setError(errorMessage);
+      console.error("Registration error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="p-6 border rounded w-80">
-        <h1 className="text-xl mb-4">Register</h1>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 px-4 py-12">
+      <div className="max-w-md w-full bg-white border border-slate-200 shadow-xl rounded-3xl overflow-hidden">
+        <div className="p-8 sm:p-10">
+          <div className="text-center mb-8">
+            <p className="text-sm font-semibold text-green-600 uppercase tracking-[0.3em]">
+              Create your account
+            </p>
+            <h1 className="mt-4 text-3xl font-semibold text-slate-900">
+              Join the task flow
+            </h1>
+            <p className="mt-2 text-sm text-slate-500">
+              Register and start managing tasks with clarity and speed.
+            </p>
+          </div>
 
-        <input
-          className="border p-2 w-full mb-2"
-          placeholder="Name"
-          onChange={(e) => setName(e.target.value)}
-        />
+          <div className="space-y-4">
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Full name</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                placeholder="Your full name"
+              />
+            </label>
 
-        <input
-          className="border p-2 w-full mb-2"
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                placeholder="you@example.com"
+              />
+            </label>
 
-        <input
-          type="password"
-          className="border p-2 w-full mb-4"
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
+            <label className="block">
+              <span className="text-sm font-medium text-slate-700">Password</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100"
+                placeholder="Create a strong password"
+              />
+            </label>
 
-        <button
-          onClick={handleRegister}
-          className="bg-green-500 text-white w-full p-2"
-        >
-          Register
-        </button>
+            {error && (
+              <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                {error}
+              </div>
+            )}
 
-        <button
-          onClick={() => router.push("/login")}
-          className="mt-2 border w-full p-2"
-        >
-          Go to Login
-        </button>
+            <button
+              onClick={handleRegister}
+              disabled={loading}
+              className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/10 transition hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {loading ? "Creating account..." : "Create Account"}
+            </button>
+          </div>
+
+          <div className="mt-6 text-center text-sm text-slate-500">
+            Already have an account?{' '}
+            <button
+              onClick={() => router.push('/login')}
+              className="font-semibold text-green-600 hover:text-green-700"
+            >
+              Sign in
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );
