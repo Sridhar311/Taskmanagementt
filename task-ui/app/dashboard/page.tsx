@@ -21,9 +21,10 @@ export default function Dashboard() {
   const [filterStatus, setFilterStatus] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [page, setPage] = useState(1);
-  const [pageSize] = useState(6);
+  const [pageSize, setPageSize] = useState(6);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(false);
   const [formError, setFormError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -40,6 +41,7 @@ export default function Dashboard() {
   };
 
   const fetchTasks = async () => {
+    setIsFetching(true);
     try {
       const res = await api.get(
         `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}&sortBy=${sortBy}`
@@ -49,6 +51,8 @@ export default function Dashboard() {
       setTotalCount(responseData.totalCount || 0);
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsFetching(false);
     }
   };
 
@@ -145,7 +149,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchTasks();
-  }, [page, search, filterStatus, sortBy]);
+  }, [page, pageSize, search, filterStatus, sortBy]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -176,6 +180,21 @@ export default function Dashboard() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+        {/* Full Page Loader */}
+        {isFetching && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 backdrop-blur-sm">
+            <div className="bg-white rounded-3xl shadow-2xl p-12 flex flex-col items-center gap-6 border border-slate-200">
+              <div className="relative w-16 h-16">
+                <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 border-r-indigo-600 animate-spin"></div>
+              </div>
+              <div className="text-center">
+                <p className="text-slate-900 font-semibold text-lg">Loading tasks</p>
+                <p className="text-slate-500 text-sm mt-1">Please wait a moment...</p>
+              </div>
+            </div>
+          </div>
+        )}
         {/* Header */}
         <header className="border-b border-slate-200 bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -420,8 +439,25 @@ export default function Dashboard() {
           </div>
 
           {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex items-center justify-center gap-3 mt-8">
+          <div className="flex flex-col gap-4 items-center mt-8">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-slate-700">Tasks per page:</label>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+              >
+                <option value={3}>3</option>
+                <option value={6}>6</option>
+                <option value={9}>9</option>
+                <option value={12}>12</option>
+              </select>
+            </div>
+            
+            <div className="flex items-center justify-center gap-3">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
@@ -454,7 +490,7 @@ export default function Dashboard() {
                 Next →
               </button>
             </div>
-          )}
+          </div>
         </div>
       </div>
     </ProtectedRoute>
