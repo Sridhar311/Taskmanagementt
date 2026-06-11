@@ -1,0 +1,55 @@
+# N-Mod EXT ignore file
+.nmodignore
+
+# Node.js / Next.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+.pnpm/
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+.next/
+out/
+build/
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+!.env.example
+secrets/
+*.pem
+
+# C# / .NET
+bin/
+obj/
+.vs/
+*.user
+*.userprefs
+*.sln.user
+*.suo
+.idea/
+.vscode/
+launchSettings.json
+appsettings.Development.json
+appsettings.Local.json
+
+# IDE
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+logs/
+*.log

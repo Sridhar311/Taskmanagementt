@@ -1,0 +1,25 @@
+# .NET build artifacts
+bin/
+obj/
+
+# IDE and editor settings
+.vs/
+.vscode/
+.idea/
+*.user
+*.userprefs
+*.sln.user
+*.suo
+
+# Local settings
+launchSettings.json
+appsettings.Development.json
+appsettings.Local.json
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
