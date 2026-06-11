@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 export default function Dashboard() {
   const router = useRouter();
-  const clearToken = useAuthStore((s) => s.clearToken);
+  const logout = useAuthStore((s) => s.logout);
   
   const [tasks, setTasks] = useState<any[]>([]);
   const [title, setTitle] = useState("");
@@ -139,7 +139,7 @@ export default function Dashboard() {
   };
 
   const handleLogout = () => {
-    clearToken();
+    logout();
     router.push("/login");
   };
 
