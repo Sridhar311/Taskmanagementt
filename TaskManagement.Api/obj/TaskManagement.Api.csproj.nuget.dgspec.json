@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Sridhar\\POC\\TaskManagement.Api\\TaskManagement.Api.csproj": {}
+    "D:\\Sridhar\\POC\\Taskmanagement.Api\\TaskManagement.Api.csproj": {}
   },
   "projects": {
-    "D:\\Sridhar\\POC\\TaskManagement.Api\\TaskManagement.Api.csproj": {
+    "D:\\Sridhar\\POC\\Taskmanagement.Api\\TaskManagement.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Sridhar\\POC\\TaskManagement.Api\\TaskManagement.Api.csproj",
+        "projectUniqueName": "D:\\Sridhar\\POC\\Taskmanagement.Api\\TaskManagement.Api.csproj",
         "projectName": "TaskManagement.Api",
-        "projectPath": "D:\\Sridhar\\POC\\TaskManagement.Api\\TaskManagement.Api.csproj",
+        "projectPath": "D:\\Sridhar\\POC\\Taskmanagement.Api\\TaskManagement.Api.csproj",
         "packagesPath": "C:\\Users\\SoftSuave\\.nuget\\packages\\",
-        "outputPath": "D:\\Sridhar\\POC\\TaskManagement.Api\\obj\\",
+        "outputPath": "D:\\Sridhar\\POC\\Taskmanagement.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
