@@ -160,11 +160,21 @@ public class TasksController : ControllerBase
                 message = "Task not found"
             });
 
-        task.Title = dto.Title;
-        task.Description = dto.Description;
-        task.Status = dto.Status;
-        task.Priority = dto.Priority;
-        task.DueDate = ConvertToUtc(dto.DueDate);
+        if (dto.Title != null)
+            task.Title = dto.Title;
+
+        if (dto.Description != null)
+            task.Description = dto.Description;
+
+        if (dto.Status.HasValue)
+            task.Status = dto.Status.Value;
+
+        if (dto.Priority.HasValue)
+            task.Priority = dto.Priority.Value;
+
+        if (dto.DueDate.HasValue)
+            task.DueDate = ConvertToUtc(dto.DueDate);
+
         task.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();

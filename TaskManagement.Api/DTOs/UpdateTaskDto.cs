@@ -4,13 +4,14 @@ namespace TaskManagement.Api.DTOs;
 
 public class UpdateTaskDto
 {
-    public string Title { get; set; } = "";
+    // Nullable fields to support partial updates via PATCH
+    public string? Title { get; set; }
 
-    public string Description { get; set; } = "";
+    public string? Description { get; set; }
 
-    public TaskItemStatus Status { get; set; } = TaskItemStatus.Pending;
+    public TaskItemStatus? Status { get; set; }
 
-    public TaskPriority Priority { get; set; } = TaskPriority.Medium;
+    public TaskPriority? Priority { get; set; }
 
     public DateTime? DueDate { get; set; }
 }

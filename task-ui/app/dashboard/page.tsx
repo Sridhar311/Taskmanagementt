@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
+  const [sortBy, setSortBy] = useState("");
   const [page, setPage] = useState(1);
   const [pageSize] = useState(6);
   const [totalCount, setTotalCount] = useState(0);
@@ -41,7 +42,7 @@ export default function Dashboard() {
   const fetchTasks = async () => {
     try {
       const res = await api.get(
-        `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}`
+        `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}&sortBy=${sortBy}`
       );
       const responseData = res.data.data || res.data;
       setTasks(responseData.items || []);
@@ -115,6 +116,18 @@ export default function Dashboard() {
     }
   };
 
+  const markComplete = async (id: string) => {
+    try {
+      await api.patch(`/tasks/${id}`, { status: "Completed" });
+      setSuccessMessage("Task marked complete!");
+      setTimeout(() => setSuccessMessage(""), 2500);
+      await fetchTasks();
+    } catch (error) {
+      console.error(error);
+      setFormError("Failed to mark task complete");
+    }
+  };
+
   const editTask = (task: any) => {
     setEditingTaskId(task.id);
     setTitle(task.title);
@@ -132,7 +145,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchTasks();
-  }, [page, search, filterStatus]);
+  }, [page, search, filterStatus, sortBy]);
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
@@ -284,7 +297,7 @@ export default function Dashboard() {
           <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
             <h3 className="text-lg font-semibold text-slate-900 mb-4">Search & Filter</h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <label className="block">
                 <span className="text-sm font-medium text-slate-700">Search Tasks</span>
                 <input
@@ -313,6 +326,22 @@ export default function Dashboard() {
                   <option value="Pending">Pending</option>
                   <option value="InProgress">In Progress</option>
                   <option value="Completed">Completed</option>
+                </select>
+              </label>
+
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Sort By</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setPage(1);
+                  }}
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                >
+                  <option value="">Newest</option>
+                  <option value="dueDate">Due Date</option>
+                  <option value="priority">Priority</option>
                 </select>
               </label>
             </div>
@@ -360,12 +389,22 @@ export default function Dashboard() {
                       )}
 
                       <div className="flex gap-2 pt-4 border-t border-slate-200">
+                        {task.status !== "Completed" && (
+                          <button
+                            onClick={() => markComplete(task.id)}
+                            className="flex-1 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-2 text-sm font-medium transition"
+                          >
+                            Complete
+                          </button>
+                        )}
+
                         <button
                           onClick={() => editTask(task)}
                           className="flex-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 text-sm font-medium transition"
                         >
                           Edit
                         </button>
+
                         <button
                           onClick={() => deleteTask(task.id)}
                           className="flex-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 text-sm font-medium transition"
