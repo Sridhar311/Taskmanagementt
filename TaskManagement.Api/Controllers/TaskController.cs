@@ -39,7 +39,7 @@ public class TasksController : ControllerBase
             Description = dto.Description,
             Status = dto.Status,
             Priority = dto.Priority,
-            DueDate = dto.DueDate,
+            DueDate = ConvertToUtc(dto.DueDate),
             UserId = GetCurrentUserId()
         };
 
@@ -164,7 +164,7 @@ public class TasksController : ControllerBase
         task.Description = dto.Description;
         task.Status = dto.Status;
         task.Priority = dto.Priority;
-        task.DueDate = dto.DueDate;
+        task.DueDate = ConvertToUtc(dto.DueDate);
         task.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -174,6 +174,19 @@ public class TasksController : ControllerBase
             success = true,
             data = task
         });
+    }
+
+    private static DateTime? ConvertToUtc(DateTime? date)
+    {
+        if (!date.HasValue)
+            return null;
+
+        return date.Value.Kind switch
+        {
+            DateTimeKind.Utc => date.Value,
+            DateTimeKind.Local => date.Value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(date.Value, DateTimeKind.Utc)
+        };
     }
 
     // DELETE TASK

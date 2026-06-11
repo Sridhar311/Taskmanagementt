@@ -9,6 +9,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using TaskManagement.Api.Validators;
 using TaskManagement.Api.Middleware;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -55,7 +56,13 @@ builder.Services.AddDbContext<AppDbContext>(options =>
         builder.Configuration
         .GetConnectionString("DefaultConnection"));
 });
-
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter());
+    });
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddFluentValidationAutoValidation();
 
@@ -85,11 +92,21 @@ JwtBearerDefaults.AuthenticationScheme)
                         builder.Configuration["Jwt:Key"]!))
         };
 });
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:3000")
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
-
+app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<ExceptionMiddleware>();

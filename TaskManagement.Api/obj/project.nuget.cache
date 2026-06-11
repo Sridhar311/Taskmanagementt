@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "1oJnMpx7m2k=",
+  "dgSpecHash": "tro94dmsO3Y=",
   "success": true,
-  "projectFilePath": "D:\\Sridhar\\POC\\Taskmanagement.Api\\TaskManagement.Api.csproj",
+  "projectFilePath": "D:\\Sridhar\\POC\\Taskmanagement.api\\TaskManagement.Api.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\SoftSuave\\.nuget\\packages\\bcrypt.net-next\\4.2.0\\bcrypt.net-next.4.2.0.nupkg.sha512",
     "C:\\Users\\SoftSuave\\.nuget\\packages\\fluentvalidation\\11.11.0\\fluentvalidation.11.11.0.nupkg.sha512",

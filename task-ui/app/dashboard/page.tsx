@@ -52,13 +52,16 @@ export default function Dashboard() {
 
   const createTask = async () => {
     try {
-      await api.post("/tasks", {
+      const payload: any = {
         title,
         description,
         status,
         priority,
-        dueDate,
-      });
+      };
+
+      if (dueDate) payload.dueDate = dueDate;
+
+      await api.post("/tasks", payload);
 
       resetForm();
       await fetchTasks();
@@ -72,13 +75,16 @@ export default function Dashboard() {
     if (editingTaskId === null) return;
 
     try {
-      await api.patch(`/tasks/${editingTaskId}`, {
+      const payload: any = {
         title,
         description,
         status,
         priority,
-        dueDate,
-      });
+      };
+
+      if (dueDate) payload.dueDate = dueDate;
+
+      await api.patch(`/tasks/${editingTaskId}`, payload);
 
       resetForm();
       await fetchTasks();

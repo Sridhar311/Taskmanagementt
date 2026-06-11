@@ -28,7 +28,8 @@ public class ExceptionMiddleware
                 .WriteAsJsonAsync(new
                 {
                     success = false,
-                    message = ex.Message
+                    message = ex.Message,
+                    details = ex.InnerException?.Message
                 });
         }
     }
