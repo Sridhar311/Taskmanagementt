@@ -243,7 +243,7 @@ export default function Dashboard() {
               )}
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">
                   Task Title *
                 </span>
                 <input
@@ -256,7 +256,7 @@ export default function Dashboard() {
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">
                   Description
                 </span>
                 <textarea
@@ -270,7 +270,7 @@ export default function Dashboard() {
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">
                     Status
                   </span>
                   <select
@@ -285,7 +285,7 @@ export default function Dashboard() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">
                     Priority
                   </span>
                   <select
@@ -301,7 +301,7 @@ export default function Dashboard() {
               </div>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 dark:text-slate-300">
                   Due Date
                 </span>
                 <input
@@ -340,14 +340,14 @@ export default function Dashboard() {
           </div>
 
           {/* Search & Filter Section */}
-          <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
               Search & Filter
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Search Tasks
                 </span>
                 <input
@@ -357,13 +357,13 @@ export default function Dashboard() {
                     setSearch(e.target.value);
                     setPage(1);
                   }}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 resize-none transition-colors"
                   placeholder="Search by title..."
                 />
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Filter by Status
                 </span>
                 <select
@@ -372,7 +372,7 @@ export default function Dashboard() {
                     setFilterStatus(e.target.value);
                     setPage(1);
                   }}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 resize-none transition-colors"
                 >
                   <option value="">All Statuses</option>
                   <option value="Pending">Pending</option>
@@ -382,7 +382,7 @@ export default function Dashboard() {
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300">
                   Sort By
                 </span>
                 <select
@@ -391,7 +391,7 @@ export default function Dashboard() {
                     setSortBy(e.target.value);
                     setPage(1);
                   }}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 resize-none transition-colors"
                 >
                   <option value="">Newest</option>
                   <option value="dueDate">Due Date</option>
@@ -403,7 +403,7 @@ export default function Dashboard() {
 
           {/* Tasks Section */}
           <div className="mb-8">
-            <h3 className="text-2xl font-bold text-slate-900 mb-6">
+            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
               My Tasks{" "}
               {tasks.length > 0 && (
                 <span className="text-slate-500 font-normal">
@@ -436,17 +436,17 @@ export default function Dashboard() {
                 {tasks.map((task) => (
                   <div
                     key={task.id}
-                    className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
+                    className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden  h-full flex flex-col"
                   >
-                    <div className="p-6">
+                    <div className="p-6 bg-white dark:bg-slate-800 flex flex-col flex-1">
                       <div className="flex items-start justify-between mb-3">
-                        <h4 className="text-lg font-semibold text-slate-900 flex-1">
+                        <h4 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
                           {task.title}
                         </h4>
                       </div>
-
+{/* text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 */}
                       {task.description && (
-                        <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+                        <p className="text-slate-700 dark:text-slate-300 text-sm mb-4 line-clamp-2">
                           {task.description}
                         </p>
                       )}
@@ -504,7 +504,7 @@ export default function Dashboard() {
           {/* Pagination */}
           <div className="flex flex-col gap-4 items-center mt-8">
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-slate-700">
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300">
                 Tasks per page:
               </label>
               <select
@@ -513,7 +513,7 @@ export default function Dashboard() {
                   setPageSize(Number(e.target.value));
                   setPage(1);
                 }}
-                className="rounded-lg border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                className="rounded-lg border border-slate-300 bg-slate-50 dark:bg-slate-700 px-3 py-2 text-sm text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
               >
                 <option value={3}>3</option>
                 <option value={6}>6</option>
@@ -526,7 +526,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-50 transition"
               >
                 ← Previous
               </button>
@@ -552,7 +552,7 @@ export default function Dashboard() {
               <button
                 onClick={() => setPage((p) => p + 1)}
                 disabled={page >= totalPages}
-                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 transition"
+                className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 dark:text-slate-300 hover:bg-slate-50 disabled:opacity-50 transition"
               >
                 Next →
               </button>
