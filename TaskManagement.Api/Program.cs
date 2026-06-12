@@ -10,7 +10,9 @@ using FluentValidation.AspNetCore;
 using TaskManagement.Api.Validators;
 using TaskManagement.Api.Middleware;
 using System.Text.Json.Serialization;
+using DotNetEnv;
 
+Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
