@@ -10,13 +10,24 @@ export default function ProtectedRoute({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+
   const token = useAuthStore((s) => s.token);
+  const hydrated = useAuthStore((s) => s.hydrated);
+  const setHydrated = useAuthStore((s) => s.setHydrated);
 
   useEffect(() => {
-    if (!token) {
+    setHydrated();
+  }, [setHydrated]);
+
+  useEffect(() => {
+    if (hydrated && !token) {
       router.push("/login");
     }
-  }, [token]);
+  }, [hydrated, token, router]);
 
-  return token ? children : null;
+  if (!hydrated) {
+    return null;
+  }
+
+  return token ? <>{children}</> : null;
 }

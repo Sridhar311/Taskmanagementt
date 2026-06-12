@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 export default function Dashboard() {
   const router = useRouter();
   const logout = useAuthStore((s) => s.logout);
-  
+
   const [tasks, setTasks] = useState<any[]>([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -44,10 +44,11 @@ export default function Dashboard() {
     setIsFetching(true);
     try {
       const res = await api.get(
-        `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}&sortBy=${sortBy}`
+        `/tasks?page=${page}&pageSize=${pageSize}&search=${search}&status=${filterStatus}&sortBy=${sortBy}`,
       );
       const responseData = res.data.data || res.data;
-      setTasks(responseData.items || []);
+      const tasksData = responseData.items || [];
+      setTasks(tasksData);
       setTotalCount(responseData.totalCount || 0);
     } catch (error) {
       console.error(error);
@@ -58,7 +59,7 @@ export default function Dashboard() {
 
   const createTask = async () => {
     setFormError("");
-    
+
     if (!title.trim()) {
       setFormError("Task title is required");
       return;
@@ -179,75 +180,89 @@ export default function Dashboard() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 transition-colors">
         {/* Full Page Loader */}
         {isFetching && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 backdrop-blur-sm">
-            <div className="bg-white rounded-3xl shadow-2xl p-12 flex flex-col items-center gap-6 border border-slate-200">
+            <div className="bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-12 flex flex-col items-center gap-6 border border-slate-200 dark:border-slate-700">
               <div className="relative w-16 h-16">
-                <div className="absolute inset-0 rounded-full border-4 border-slate-100"></div>
+                <div className="absolute inset-0 rounded-full border-4 border-slate-100 dark:border-slate-700"></div>
                 <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-indigo-600 border-r-indigo-600 animate-spin"></div>
               </div>
               <div className="text-center">
-                <p className="text-slate-900 font-semibold text-lg">Loading tasks</p>
-                <p className="text-slate-500 text-sm mt-1">Please wait a moment...</p>
+                <p className="text-slate-900 dark:text-white font-semibold text-lg">
+                  Loading tasks
+                </p>
+                <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
+                  Please wait a moment...
+                </p>
               </div>
             </div>
           </div>
         )}
         {/* Header */}
-        <header className="border-b border-slate-200 bg-white shadow-sm">
+        <header className="border-b border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm transition-colors">
           <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-slate-900">Task Dashboard</h1>
-              <p className="text-sm text-slate-500 mt-1">Manage your tasks efficiently</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Task Dashboard
+              </h1>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+                Manage your tasks efficiently
+              </p>
             </div>
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 rounded-xl text-slate-700 border border-slate-300 hover:bg-slate-50 transition font-medium text-sm"
-            >
-              Logout
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-xl text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 transition font-medium text-sm"
+              >
+                Logout
+              </button>
+            </div>
           </div>
         </header>
 
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Create/Edit Task Section */}
-          <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 mb-6">
+          <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-3xl shadow-sm p-8 mb-8 transition-colors">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
               {editingTaskId ? "Edit Task" : "Create New Task"}
             </h2>
 
             <div className="space-y-4">
               {formError && (
-                <div className="rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700">
+                <div className="rounded-xl bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 p-3 text-sm text-red-700 dark:text-red-200">
                   {formError}
                 </div>
               )}
 
               {successMessage && (
-                <div className="rounded-xl bg-green-50 border border-green-200 p-3 text-sm text-green-700">
+                <div className="rounded-xl bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-200">
                   {successMessage}
                 </div>
               )}
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Task Title *</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Task Title *
+                </span>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-colors"
                   placeholder="Enter task title"
                 />
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Description</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Description
+                </span>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100 resize-none"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white placeholder-slate-500 dark:placeholder-slate-400 focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 resize-none transition-colors"
                   placeholder="Enter task description"
                   rows={3}
                 />
@@ -255,11 +270,13 @@ export default function Dashboard() {
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Status</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Status
+                  </span>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value)}
-                    className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                    className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-colors"
                   >
                     <option value="Pending">Pending</option>
                     <option value="InProgress">In Progress</option>
@@ -268,11 +285,13 @@ export default function Dashboard() {
                 </label>
 
                 <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Priority</span>
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Priority
+                  </span>
                   <select
                     value={priority}
                     onChange={(e) => setPriority(e.target.value)}
-                    className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                    className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-colors"
                   >
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
@@ -282,12 +301,14 @@ export default function Dashboard() {
               </div>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Due Date</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Due Date
+                </span>
                 <input
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
-                  className="mt-2 block w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 text-slate-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-100"
+                  className="mt-2 block w-full rounded-2xl border border-slate-300 dark:border-slate-600 bg-slate-50 dark:bg-slate-700 px-4 py-3 text-slate-900 dark:text-white focus:border-indigo-500 dark:focus:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-100 dark:focus:ring-indigo-900 transition-colors"
                 />
               </label>
 
@@ -297,7 +318,13 @@ export default function Dashboard() {
                   disabled={loading}
                   className="flex-1 rounded-2xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-700 disabled:opacity-50"
                 >
-                  {loading ? (editingTaskId ? "Updating..." : "Creating...") : (editingTaskId ? "Update Task" : "Create Task")}
+                  {loading
+                    ? editingTaskId
+                      ? "Updating..."
+                      : "Creating..."
+                    : editingTaskId
+                      ? "Update Task"
+                      : "Create Task"}
                 </button>
 
                 {editingTaskId && (
@@ -314,11 +341,15 @@ export default function Dashboard() {
 
           {/* Search & Filter Section */}
           <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-8 mb-8">
-            <h3 className="text-lg font-semibold text-slate-900 mb-4">Search & Filter</h3>
-            
+            <h3 className="text-lg font-semibold text-slate-900 mb-4">
+              Search & Filter
+            </h3>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Search Tasks</span>
+                <span className="text-sm font-medium text-slate-700">
+                  Search Tasks
+                </span>
                 <input
                   type="text"
                   value={search}
@@ -332,7 +363,9 @@ export default function Dashboard() {
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Filter by Status</span>
+                <span className="text-sm font-medium text-slate-700">
+                  Filter by Status
+                </span>
                 <select
                   value={filterStatus}
                   onChange={(e) => {
@@ -349,7 +382,9 @@ export default function Dashboard() {
               </label>
 
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Sort By</span>
+                <span className="text-sm font-medium text-slate-700">
+                  Sort By
+                </span>
                 <select
                   value={sortBy}
                   onChange={(e) => {
@@ -369,49 +404,77 @@ export default function Dashboard() {
           {/* Tasks Section */}
           <div className="mb-8">
             <h3 className="text-2xl font-bold text-slate-900 mb-6">
-              My Tasks {tasks.length > 0 && <span className="text-slate-500 font-normal">({totalCount})</span>}
+              My Tasks{" "}
+              {tasks.length > 0 && (
+                <span className="text-slate-500 font-normal">
+                  ({totalCount})
+                </span>
+              )}
             </h3>
 
             {tasks.length === 0 ? (
               <div className="bg-white border border-slate-200 rounded-3xl shadow-sm p-12 text-center">
-                <svg className="w-16 h-16 mx-auto text-slate-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <svg
+                  className="w-16 h-16 mx-auto text-slate-300 mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={1.5}
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
                 </svg>
-                <p className="text-slate-500 text-lg">No tasks found. Create one to get started!</p>
+                <p className="text-slate-500 text-lg">
+                  No tasks found. Create one to get started!
+                </p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 {tasks.map((task) => (
-                  <div key={task.id} className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden">
+                  <div
+                    key={task.id}
+                    className="bg-white border border-slate-200 rounded-2xl shadow-sm hover:shadow-md transition overflow-hidden"
+                  >
                     <div className="p-6">
                       <div className="flex items-start justify-between mb-3">
-                        <h4 className="text-lg font-semibold text-slate-900 flex-1">{task.title}</h4>
+                        <h4 className="text-lg font-semibold text-slate-900 flex-1">
+                          {task.title}
+                        </h4>
                       </div>
 
                       {task.description && (
-                        <p className="text-slate-600 text-sm mb-4 line-clamp-2">{task.description}</p>
+                        <p className="text-slate-600 text-sm mb-4 line-clamp-2">
+                          {task.description}
+                        </p>
                       )}
 
                       <div className="flex gap-2 mb-4 flex-wrap">
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(task.status)}`}>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getStatusColor(task.status)}`}
+                        >
                           {task.status}
                         </span>
-                        <span className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(task.priority)}`}>
+                        <span
+                          className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${getPriorityColor(task.priority)}`}
+                        >
                           {task.priority}
                         </span>
                       </div>
 
                       {task.dueDate && (
                         <p className="text-xs text-slate-500 mb-4">
-                          📅 Due: {new Date(task.dueDate).toLocaleDateString()}
+                          Due: {new Date(task.dueDate).toLocaleDateString()}
                         </p>
                       )}
 
-                      <div className="flex gap-2 pt-4 border-t border-slate-200">
+                      <div className="flex gap-2 pt-4 border-t border-slate-200 flex-wrap">
                         {task.status !== "Completed" && (
                           <button
                             onClick={() => markComplete(task.id)}
-                            className="flex-1 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-2 text-sm font-medium transition"
+                            className="flex-1 min-w-fit rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 px-3 py-2 text-sm font-medium transition"
                           >
                             Complete
                           </button>
@@ -419,14 +482,14 @@ export default function Dashboard() {
 
                         <button
                           onClick={() => editTask(task)}
-                          className="flex-1 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 text-sm font-medium transition"
+                          className="flex-1 min-w-fit rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-2 text-sm font-medium transition"
                         >
                           Edit
                         </button>
 
                         <button
                           onClick={() => deleteTask(task.id)}
-                          className="flex-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 text-sm font-medium transition"
+                          className="flex-1 min-w-fit rounded-lg bg-red-50 text-red-600 hover:bg-red-100 px-3 py-2 text-sm font-medium transition"
                         >
                           Delete
                         </button>
@@ -441,7 +504,9 @@ export default function Dashboard() {
           {/* Pagination */}
           <div className="flex flex-col gap-4 items-center mt-8">
             <div className="flex items-center gap-3">
-              <label className="text-sm font-medium text-slate-700">Tasks per page:</label>
+              <label className="text-sm font-medium text-slate-700">
+                Tasks per page:
+              </label>
               <select
                 value={pageSize}
                 onChange={(e) => {
@@ -456,7 +521,7 @@ export default function Dashboard() {
                 <option value={12}>12</option>
               </select>
             </div>
-            
+
             <div className="flex items-center justify-center gap-3">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -467,19 +532,21 @@ export default function Dashboard() {
               </button>
 
               <div className="flex items-center gap-2">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-                  <button
-                    key={p}
-                    onClick={() => setPage(p)}
-                    className={`rounded-lg w-10 h-10 text-sm font-medium transition ${
-                      page === p
-                        ? "bg-indigo-600 text-white"
-                        : "border border-slate-300 text-slate-700 hover:bg-slate-50"
-                    }`}
-                  >
-                    {p}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`rounded-lg w-10 h-10 text-sm font-medium transition ${
+                        page === p
+                          ? "bg-indigo-600 text-white"
+                          : "border border-slate-300 text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
               </div>
 
               <button
