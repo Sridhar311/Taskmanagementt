@@ -99,11 +99,18 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins(
-                "http://localhost:3000",
-                "https://taskmanagement-f-san9.vercel.app",
-                "https://taskmanagement-f-san9-lmgdmlq5m.vercel.app"
-            )
+            .SetIsOriginAllowed(origin =>
+            {
+                if (string.IsNullOrWhiteSpace(origin))
+                    return false;
+
+                var host = new Uri(origin).Host;
+
+                // Allow local dev and any Vercel deployment
+                // (production + preview URLs end in .vercel.app)
+                return host == "localhost"
+                    || host.EndsWith(".vercel.app");
+            })
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
