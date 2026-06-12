@@ -99,7 +99,11 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .WithOrigins("http://localhost:3000")
+            .WithOrigins(
+                "http://localhost:3000",
+                "https://taskmanagement-f-san9.vercel.app",
+                "https://taskmanagement-f-san9-lmgdmlq5m.vercel.app"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
